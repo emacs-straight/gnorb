@@ -156,7 +156,6 @@ and Gnus and BBDB maps."
 
 (defun gnorb-follow-gnus-link (group id)
   "Be a little clever about following gnus links.
-
 The goal here is reuse frames and windows as much as possible, so
 we're not opening multiple windows on the *Group* buffer, for
 instance, and messing up people's layouts. There also seems to be
@@ -211,16 +210,13 @@ window."
   ;; called from elsewhere...
   (let* ((id (gnorb-bracket-message-id id))
 	 (arts (gnus-group-unread group))
-	 artno success)
-    (or (setq artno (car (gnus-registry-get-id-key id 'artno)))
-	(progn
-	  (setq artno (cdr (gnus-request-head id group)))
-	  (gnus-registry-set-id-key id 'artno (list artno))))
+	 (artno (cdr (gnus-request-head id group)))
+	 success)
     (gnus-activate-group group)
     (setq success (gnus-group-read-group arts t group))
     (if success
 	(gnus-summary-goto-article artno nil t)
-      (signal 'error "Group could not be opened."))))
+      (signal 'error (format "Group %s could not be opened." group)))))
 
 ;; I'd like to suggest this as a general addition to Emacs.  *Very*
 ;; tired of abusing `completing-read' for this purpose.
@@ -520,7 +516,12 @@ methods?"
 				   gnorb-gnus-sent-groups)))
 	(while (setq server-group (pop candidates))
 	  (when (and (stringp server-group)
-		     (string-match-p "+" server-group)
+		     ;; I don't remember the reason for this check,
+		     ;; which is totally fragile and fails on groups
+		     ;; belonging to `gnus-select-method': another
+		     ;; reason why this select method stuff is a mess.
+
+		     ;;(string-match-p "+" server-group)
 		     (not
 		      (string-match-p
 		       "\\(nnir\\|nnvirtual\\|UNKNOWN\\)"
@@ -536,7 +537,6 @@ methods?"
 
 (defun gnorb-collect-ids (&optional id)
   "Collect all Org IDs for a subtree.
-
 Starting with the heading under point (or the heading indicated
 by the ID argument), collect its ID property, and the IDs of all
 child headings."
