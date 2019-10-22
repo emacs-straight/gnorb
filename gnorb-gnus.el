@@ -622,7 +622,7 @@ you'll stay in the Gnus summary buffer."
 	    (delete-other-windows)
 	    (gnorb-trigger-todo-action nil targ)
 	    (when gnorb-gnus-copy-message-text
-	      (if (numberp gnorb-gnus-copy-message-text)
+	      (if (characterp gnorb-gnus-copy-message-text)
 		  (with-temp-buffer
 		    (insert text)
 		    (copy-to-register
@@ -967,19 +967,15 @@ option `gnorb-gnus-hint-relevant-article' is non-nil."
 	   (assoc-heading
 	    (gnus-registry-get-id-key
 	     (gnus-fetch-original-field "message-id") 'gnorb-ids))
-	   (tracked-headings (gnorb-find-tracked-headings headers))
-	   (key
-	    (where-is-internal 'gnorb-gnus-incoming-do-todo
-			       nil t)))
+	   (tracked-headings (gnorb-find-tracked-headings headers)))
       (cond (assoc-heading
 	     (message "Message is associated with %s"
 		      (gnorb-pretty-outline (car assoc-heading) t)))
 	    (tracked-headings
-	     (message "Possible relevant todo %s, trigger with %s"
-		      (gnorb-pretty-outline (car tracked-headings) t)
-		      (if key
-			  (key-description key)
-			"M-x gnorb-gnus-incoming-do-todo")))
+	     (message
+	      (substitute-command-keys
+	       "Possible relevant todo %s, trigger with \\[gnorb-gnus-incomding-do-todo]")
+	      (gnorb-pretty-outline (car tracked-headings) t)))
 	    (t nil)))))
 
 (defun gnorb-gnus-insert-format-letter-maybe (header)
