@@ -596,7 +596,7 @@ you'll stay in the Gnus summary buffer."
 			(throw 'target (setq targ h)))))
 	    ;; If not, use the refile interface to choose one.
 	    (setq targ (org-refile-get-location
-			"Trigger heading" nil t))
+			"Trigger heading" nil))
 	    (setq targ
 		  (save-window-excursion
 		    (find-file (nth 1 targ))
@@ -892,6 +892,8 @@ HEAD-TEXT, if present, as its name.  Otherwise create an
 ephemeral one, with RET as the value of its quit-config."
   (interactive)
   (require 'nnir)
+  (unless (gnus-alive-p)
+    (gnus))
   (let* ((nnir-address (gnorb-gnus-find-gnorb-server))
 	 (name (if persist
 		   (read-string
