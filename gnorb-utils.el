@@ -77,7 +77,6 @@ with `gnorb-window-conf'.")
   "Name of the mail header used to store the ID of a related Org
   heading. Only used locally: always stripped when the mail is
   sent."
-  :group 'gnorb
   :type 'string)
 
 (defun gnorb-version ()
@@ -105,7 +104,7 @@ Only works for Gnorb installed via the package manager."
 	       ,@(last ign-headers-list 1)))
        (setq message-ignored-mail-headers
 	     (mapconcat
-	      'identity ign-headers-list "|")))))
+	      #'identity ign-headers-list "|")))))
 
 ;;;###autoload
 (defun gnorb-restore-layout ()
@@ -146,14 +145,14 @@ and Gnus and BBDB maps."
   (let* ((link (org-link-unescape link))
 	 (group (car (org-split-string link "#")))
 	 (id (gnorb-bracket-message-id
-	      (second (org-split-string link "#"))))
+	      (cl-second (org-split-string link "#"))))
 	 (backend
 	  (car (gnus-find-method-for-group group))))
     (gnorb-follow-gnus-link group id)
     (call-interactively
      (if (eq backend 'nntp)
-	 'gnus-summary-followup-with-original
-       'gnus-summary-wide-reply-with-original))))
+	 #'gnus-summary-followup-with-original
+       #'gnus-summary-wide-reply-with-original))))
 
 (defun gnorb-follow-gnus-link (group id)
   "Be a little clever about following gnus links.
