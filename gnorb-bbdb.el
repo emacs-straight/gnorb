@@ -1,6 +1,6 @@
 ;;; gnorb-bbdb.el --- The BBDB-centric functions of gnorb  -*- lexical-binding: t -*-
 
-;; Copyright (C) 2018-2020  Free Software Foundation, Inc.
+;; Copyright (C) 2018-2021  Free Software Foundation, Inc.
 
 ;; Author: Eric Abrahamsen <eric@ericabrahamsen.net>
 
@@ -170,6 +170,9 @@ be composed, just as in `gnus-posting-styles'."
     (lambda (record indent)
       (gnorb-bbdb-display-org-tags record indent))))
 
+(defvar crm-separator)
+(defvar crm-local-completion-map)
+
 (defun gnorb-bbdb-read-org-tags (&optional init)
   "Read Org mode tags, with `completing-read-multiple'."
   (if (string< "24.3" (substring emacs-version 0 4))
@@ -316,7 +319,7 @@ is non-nil (as in interactive calls) be verbose."
 			  ((boundp value)
 			   (symbol-value value))))
 		   ((listp value)
-		    (eval value))))
+		    (eval value t))))
 	    ;; Post-processing for the signature posting-style:
 	    (and (eq element 'signature) filep
 		 message-signature-directory
@@ -400,13 +403,13 @@ prefix operates on all currently visible records. If you want
 both, use \"C-u\" before the \"*\"."
   (interactive (list (bbdb-do-records)))
   (require 'org-agenda)
-  (unless (and (eq major-mode 'bbdb-mode)
+  (unless (and (derived-mode-p 'bbdb-mode)
 	       (equal (buffer-name) bbdb-buffer-name))
     (error "Only works in the BBDB buffer"))
   (setq records (bbdb-record-list records))
   (let ((tag-string
 	 (mapconcat
-	  'identity
+	  #'identity
 	  (delete-dups
 	   (cl-mapcan
 	    (lambda (r)
@@ -470,8 +473,8 @@ layout type."
 	(val (bbdb-record-xfield record gnorb-bbdb-messages-field))
 	(map (make-sparse-keymap))
 	(count 1)) ; one-indexed to fit with prefix arg to `gnorb-bbdb-open-link'
-    (define-key map [mouse-1] 'gnorb-bbdb-mouse-open-link)
-    (define-key map (kbd "<RET>") 'gnorb-bbdb-RET-open-link)
+    (define-key map [mouse-1] #'gnorb-bbdb-open-link)
+    (define-key map (kbd "<RET>") #'gnorb-bbdb-open-link)
     (when val
       (when (eq format 'multi)
 	(bbdb-display-text (format (format " %%%ds: " (- indent 3))
@@ -551,7 +554,7 @@ that contact will start collecting links to messages."
     (user-error "This function only works with the git version of BBDB"))
   (let (msg-list target-msg)
     (if (not (memq gnorb-bbdb-messages-field
-		   (mapcar 'car (bbdb-record-xfields record))))
+		   (mapcar #'car (bbdb-record-xfields record))))
 	(when (y-or-n-p
 	       (format "Start collecting message links for %s?"
 		       (bbdb-record-name record)))
@@ -570,17 +573,13 @@ that contact will start collecting links to messages."
 	  (org-gnus-follow-link (gnorb-bbdb-link-group target-msg)
 				(gnorb-bbdb-link-id target-msg))))))
 
-(defun gnorb-bbdb-mouse-open-link (event)
-  (interactive "e")
-  (mouse-set-point event)
-  (let ((rec (bbdb-current-record))
-	(num (get-text-property (point) 'gnorb-bbdb-link-count)))
-    (if (not num)
-	(user-error "No link under point")
-      (gnorb-bbdb-open-link rec num))))
+(define-obsolete-function-alias 'gnorb-bbdb-mouse-open-link #'gnorb-bbdb-open-link "Apr 2021")
+(define-obsolete-function-alias 'gnorb-bbdb-RET-open-link
+  #'gnorb-bbdb-open-link "Apr 2021")
 
-(defun gnorb-bbdb-RET-open-link ()
-  (interactive)
+(defun gnorb-bbdb-open-link (&optional event)
+  (interactive (list last-nonmenu-event))
+  (posn-set-point (event-end event))
   (let ((rec (bbdb-current-record))
 	(num (get-text-property (point) 'gnorb-bbdb-link-count)))
     (if (not num)
@@ -604,7 +603,7 @@ to a message into the record's `gnorb-bbdb-messages-field'."
       (let* ((val (bbdb-record-xfield record gnorb-bbdb-messages-field))
 	     (art-no (gnus-summary-article-number))
 	     (heads (gnus-summary-article-header art-no))
-	     (date (apply 'encode-time
+	     (date (apply #'encode-time
 			  (parse-time-string (mail-header-date heads))))
 	     (subject (mail-header-subject heads))
 	     (id (mail-header-id heads))
@@ -631,7 +630,7 @@ to a message into the record's `gnorb-bbdb-messages-field'."
 				  (delq nil val))
 	  (bbdb-change-record record))))))
 
-(add-hook 'bbdb-notice-record-hook 'gnorb-bbdb-store-message-link)
+(add-hook 'bbdb-notice-record-hook #'gnorb-bbdb-store-message-link)
 
 (provide 'gnorb-bbdb)
 ;;; gnorb-bbdb.el ends here

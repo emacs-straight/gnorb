@@ -1,6 +1,6 @@
 ;;; gnorb-utils.el --- Common utilities for all gnorb stuff -*- lexical-binding: t -*-
 
-;; Copyright (C) 2018-2020  Free Software Foundation, Inc.
+;; Copyright (C) 2018-2021  Free Software Foundation, Inc.
 
 ;; Author: Eric Abrahamsen <eric@ericabrahamsen.net>
 
@@ -316,6 +316,8 @@ numbers (no upper bound)."
 			      collection)))))
 	(when-let ((win (get-buffer-window gnorb-select-choice-buffer)))
 	  (quit-window win))))))
+
+(defvar org-capture-entry)
 
 (defun gnorb-trigger-todo-action (_arg &optional id)
   "Do the actual restore action. Two main things here. First: if
@@ -635,7 +637,7 @@ registry be in use, and should be called after the call to
 (defun gnorb-install-defaults ()
   "Set up sane Gnorb customizations and keybindings."
   (interactive)
-  (global-set-key (kbd "C-c A") 'gnorb-restore-layout)
+  (global-set-key (kbd "C-c A") #'gnorb-restore-layout)
   (eval-after-load "gnorb-bbdb"
     '(progn
        (define-key bbdb-mode-map (kbd "C-c S") #'gnorb-bbdb-mail-search)

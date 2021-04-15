@@ -1,6 +1,6 @@
 ;;; gnorb-org.el --- The Org-centric functions of gnorb -*- lexical-binding: t -*-
 
-;; Copyright (C) 2018-2020  Free Software Foundation, Inc.
+;; Copyright (C) 2018-2021  Free Software Foundation, Inc.
 
 ;; Author: Eric Abrahamsen  <eric@ericabrahamsen.net>
 
@@ -314,7 +314,7 @@ headings."
     (message-goto-to)
     (when messages
       (insert ", "))
-    (insert (mapconcat 'identity mails ", ")))
+    (insert (mapconcat #'identity mails ", ")))
   ;; Commenting this out because
   ;; `gnorb-gnus-check-outgoing-headers' is set unconditionally in the
   ;; `message-send-hook, so this should be redundant.  Also, we've
@@ -489,28 +489,24 @@ composed.  FILE is a file to attach to the message."
   "A plist of export parameters corresponding to the EXT-PLIST
   argument to the export functions, for use when exporting to
   text."
-  :group 'gnorb-org
   :type 'boolean)
 
 (defcustom gnorb-org-email-subtree-file-parameters nil
   "A plist of export parameters corresponding to the EXT-PLIST
   argument to the export functions, for use when exporting to a
   file."
-  :group 'gnorb-org
   :type 'boolean)
 
 (defcustom gnorb-org-email-subtree-text-options '(nil t nil t)
   "A list of ts and nils corresponding to Org's export options,
 to be used when exporting to text. The options, in order, are
 async, subtreep, visible-only, and body-only."
-  :group 'gnorb-org
   :type 'list)
 
 (defcustom gnorb-org-email-subtree-file-options '(nil t nil nil)
   "A list of ts and nils corresponding to Org's export options,
 to be used when exporting to a file. The options, in order, are
 async, subtreep, visible-only, and body-only."
-  :group 'gnorb-org
   :type 'list)
 
 (defcustom gnorb-org-export-extensions
@@ -527,7 +523,6 @@ async, subtreep, visible-only, and body-only."
   "Correspondence between export backends and their
 respective (usual) file extensions. Ugly way to do it, but what
 the hey..."
-  :group 'gnorb-org
   :type '(repeat
 	  (list symbol string)))
 
@@ -572,7 +567,7 @@ default set of parameters."
 		 gnorb-org-email-subtree-file-options))
 	 (result
 	  (if (equal f-or-t "text")
-	      (apply 'org-export-to-buffer
+	      (apply #'org-export-to-buffer
 		     `(,backend-symbol
 		       "*Gnorb Export*"
 		       ,@opts
@@ -586,7 +581,7 @@ default set of parameters."
 		(apply #'org-odt-export-to-odt
 		       (append (cl-subseq gnorb-org-email-subtree-file-options 0 3)
 			       (list gnorb-org-email-subtree-file-parameters)))
-	     (apply 'org-export-to-file
+	     (apply #'org-export-to-file
 		    `(,backend-symbol
 		      ,(org-export-output-file-name
 			(cl-second (assoc backend-symbol gnorb-org-export-extensions))
@@ -603,7 +598,6 @@ default set of parameters."
   "Should the capture process store a link to the gnus message or
   BBDB record under point, even if it's not part of the template?
   You'll probably end up needing it, anyway."
-  :group 'gnorb-org
   :type 'boolean)
 
 (defun gnorb-org-capture-function ()
@@ -671,7 +665,7 @@ captured from onto the Org heading being captured.
 
 	(gnus-summary-update-article art-no)))))
 
-(add-hook 'org-capture-mode-hook 'gnorb-org-capture-function)
+(add-hook 'org-capture-mode-hook #'gnorb-org-capture-function)
 
 (defvar org-note-abort)
 
@@ -689,7 +683,7 @@ captured from onto the Org heading being captured.
 	 (setq abort-note 'dirty))))))
 
 (add-hook 'org-capture-prepare-finalize-hook
-	  'gnorb-org-capture-abort-cleanup)
+	  #'gnorb-org-capture-abort-cleanup)
 
 ;;; Agenda/BBDB popup stuff
 
@@ -700,12 +694,10 @@ captured from onto the Org heading being captured.
 Records are considered matching if they have an `org-tags' field
 matching the current Agenda search. The name of that field can be
 customized with `gnorb-bbdb-org-tag-field'."
-  :group 'gnorb-org
   :type 'boolean)
 
 (defcustom gnorb-org-bbdb-popup-layout 'pop-up-multi-line
   "Default BBDB buffer layout for automatic Org Agenda display."
-  :group 'gnorb-org
   :type '(choice (const one-line)
 		 (const multi-line)
 		 (const full-multi-line)
@@ -790,7 +782,7 @@ search."
 	(message "No relevant BBDB records")))))
 
 (if (featurep 'gnorb-bbdb)
-    (add-hook 'org-agenda-finalize-hook 'gnorb-org-popup-bbdb))
+    (add-hook 'org-agenda-finalize-hook #'gnorb-org-popup-bbdb))
 
 ;;; Groups from the gnorb gnus server backend
 

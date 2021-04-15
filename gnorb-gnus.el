@@ -1,6 +1,6 @@
 ;;; gnorb-gnus.el --- The gnus-centric fuctions of gnorb -*- lexical-binding: t -*-
 
-;; Copyright (C) 2018-2020  Free Software Foundation, Inc.
+;; Copyright (C) 2018-2021  Free Software Foundation, Inc.
 
 ;; Author: Eric Abrahamsen <eric@ericabrahamsen.net>
 
@@ -760,6 +760,8 @@ sender:google.com subject:\"your search results\""
 	    (gnorb-gnus-nnir-registry-search artlist)))
       (message "No results found"))))
 
+(defvar crm-separator)
+
 ;;;###autoload
 (defun gnorb-gnus-tag-message (arg &optional tags)
   "Tag message or messages with TAGS.
@@ -808,7 +810,7 @@ exclude.  See Info node `(org)Matching tags and properties'."
 	(tagged-messages (registry-search gnus-registry-db
 					  :regex `((org-tags ".+"))
 					  :member `((group ,gnus-newsgroup-name))))
-	(old (sort (mapcar 'car gnus-newsgroup-data) '<))
+	(old (sort (mapcar #'car gnus-newsgroup-data) #'<))
 	selected-messages)
     ;; Funcall the matcher with t, (list of tags), and 1.
     (dolist (m tagged-messages)
@@ -833,7 +835,7 @@ SHOW-ALL (interactively, the prefix arg) is non-nil, insert all
 messages; otherwise only insert messages that are tracked by a
 heading in a non-DONE state."
   (interactive "P")
-  (let ((old (sort (mapcar 'car gnus-newsgroup-data) '<))
+  (let ((old (sort (mapcar #'car gnus-newsgroup-data) '<))
 	(tracked-messages
 	 (registry-search gnus-registry-db
 			  :regex `((gnorb-ids ".+"))
@@ -993,7 +995,7 @@ Gnorb-tracked messages.
 While active, this mode provides some Gnorb-specific commands,
 and also advises Gnus' reply-related commands in order to
 continue to provide tracking of sent messages."
-  nil " Gnorb" gnorb-summary-minor-mode-map
+  :lighter " Gnorb"
   (setq gnorb-gnus-attachment-file-list
 	;; Copy the list of attached files from the nnir-tmp-buffer to
 	;; this summary buffer.
@@ -1003,10 +1005,10 @@ continue to provide tracking of sent messages."
 
 (define-key gnorb-summary-minor-mode-map
   [remap gnus-summary-exit]
-  'gnorb-summary-exit)
+  #'gnorb-summary-exit)
 
 (define-key gnorb-summary-minor-mode-map (kbd "C-c d")
-  'gnorb-summary-disassociate-message)
+  #'gnorb-summary-disassociate-message)
 
 ;; All this is pretty horrible, but it's the only way to get sane
 ;; behavior, there are no appropriate hooks, and I want to avoid
@@ -1014,31 +1016,31 @@ continue to provide tracking of sent messages."
 
 (define-key gnorb-summary-minor-mode-map
   [remap gnus-summary-very-wide-reply-with-original]
-  'gnorb-summary-very-wide-reply-with-original)
+  #'gnorb-summary-very-wide-reply-with-original)
 
 (define-key gnorb-summary-minor-mode-map
   [remap gnus-summary-wide-reply-with-original]
-  'gnorb-summary-wide-reply-with-original)
+  #'gnorb-summary-wide-reply-with-original)
 
 (define-key gnorb-summary-minor-mode-map
   [remap gnus-summary-reply]
-  'gnorb-summary-reply)
+  #'gnorb-summary-reply)
 
 (define-key gnorb-summary-minor-mode-map
   [remap gnus-summary-very-wide-reply]
-  'gnorb-summary-very-wide-reply)
+  #'gnorb-summary-very-wide-reply)
 
 (define-key gnorb-summary-minor-mode-map
   [remap gnus-summary-reply-with-original]
-  'gnorb-summary-reply-with-original)
+  #'gnorb-summary-reply-with-original)
 
 (define-key gnorb-summary-minor-mode-map
   [remap gnus-summary-wide-reply]
-  'gnorb-summary-wide-reply)
+  #'gnorb-summary-wide-reply)
 
 (define-key gnorb-summary-minor-mode-map
   [remap gnus-summary-mail-forward]
-  'gnorb-summary-mail-forward)
+  #'gnorb-summary-mail-forward)
 
 (defun gnorb-summary-wide-reply (&optional yank)
   (interactive
