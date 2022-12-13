@@ -1,4 +1,4 @@
-;;; gnorb-gnus.el --- The gnus-centric fuctions of gnorb -*- lexical-binding: t -*-
+;;; gnorb-gnus.el --- The gnus-centric functions of gnorb -*- lexical-binding: t -*-
 
 ;; Copyright (C) 2018-2021  Free Software Foundation, Inc.
 

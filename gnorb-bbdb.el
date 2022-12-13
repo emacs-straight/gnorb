@@ -26,7 +26,7 @@
 
 ;;; Code:
 
-;; Don't explicity require BBDB libraries.  BBDB is the "weakest leg"
+;; Don't explicitly require BBDB libraries.  BBDB is the "weakest leg"
 ;; of the Gnorb tripod: it has the least functionality, and many
 ;; people are using Gnorb without BBDB. So don't require, only
 ;; autoload.
