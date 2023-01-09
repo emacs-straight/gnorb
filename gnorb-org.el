@@ -728,7 +728,8 @@ Returns a lambda form used for matching a search string (ie, the
 	  (setq term rest)))
       (push (mapconcat 'identity (nreverse acc) "") out-or))
     (setq str (mapconcat 'identity (nreverse out-or) "|"))
-    (cdr (org-make-tags-matcher str))))
+    (when (not (string-blank-p str))
+      (cdr (org-make-tags-matcher str)))))
 
 ;;;###autoload
 (defun gnorb-org-popup-bbdb (&optional str)
@@ -743,8 +744,8 @@ search."
 		 (eq org-agenda-type 'tags))
 	    (or (called-interactively-p 'any)
 		gnorb-org-agenda-popup-bbdb))
-	   (let ((tag-clause (gnorb-org-munge-agenda-query-string
-			      (or str org-agenda-query-string))))
+	   (when-let ((tag-clause (gnorb-org-munge-agenda-query-string
+			           (or str org-agenda-query-string))))
 	     (unless (equal str "")
 	       (setq recs
 		     (cl-remove-if-not
